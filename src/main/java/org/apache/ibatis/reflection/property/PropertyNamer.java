@@ -15,11 +15,12 @@
  */
 package org.apache.ibatis.reflection.property;
 
-import java.util.Locale;
-
 import org.apache.ibatis.reflection.ReflectionException;
 
+import java.util.Locale;
+
 /**
+ * 属性名工具类
  * @author Clinton Begin
  */
 public final class PropertyNamer {
@@ -28,6 +29,12 @@ public final class PropertyNamer {
     // Prevent Instantiation of Static Class
   }
 
+  /**
+   * 从 get 或 set 方法中解析 属性名
+   *
+   * @param name 方法名
+   * @return 属性名
+   */
   public static String methodToProperty(String name) {
     if (name.startsWith("is")) {
       name = name.substring(2);
@@ -37,6 +44,7 @@ public final class PropertyNamer {
       throw new ReflectionException("Error parsing property name '" + name + "'.  Didn't start with 'is', 'get' or 'set'.");
     }
 
+    // 属性名首字母小写
     if (name.length() == 1 || (name.length() > 1 && !Character.isUpperCase(name.charAt(1)))) {
       name = name.substring(0, 1).toLowerCase(Locale.ENGLISH) + name.substring(1);
     }
@@ -44,14 +52,26 @@ public final class PropertyNamer {
     return name;
   }
 
+  /**
+   * 是否为 is get set 方法
+   * @param name 方法名
+   */
   public static boolean isProperty(String name) {
     return isGetter(name) || isSetter(name);
   }
 
+  /**
+   * 是否为 get 方法
+   * @param name 方法名
+   */
   public static boolean isGetter(String name) {
     return (name.startsWith("get") && name.length() > 3) || (name.startsWith("is") && name.length() > 2);
   }
 
+  /**
+   * 是否为 set 方法
+   * @param name 方法名
+   */
   public static boolean isSetter(String name) {
     return name.startsWith("set") && name.length() > 3;
   }

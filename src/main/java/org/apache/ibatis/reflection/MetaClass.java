@@ -27,11 +27,18 @@ import org.apache.ibatis.reflection.invoker.MethodInvoker;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 类的元数据,基于 {@link Reflector} 和 {@link PropertyTokenizer} 提供对指定类的各种操作
  * @author Clinton Begin
  */
 public class MetaClass {
 
+  /**
+   * 反射器工厂
+   */
   private final ReflectorFactory reflectorFactory;
+  /**
+   * 反射器
+   */
   private final Reflector reflector;
 
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {

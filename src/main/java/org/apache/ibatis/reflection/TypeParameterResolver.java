@@ -15,48 +15,57 @@
  */
 package org.apache.ibatis.reflection;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
 /**
+ * 复杂类型参数解析器
  * @author Iwao AVE!
  */
 public class TypeParameterResolver {
 
   /**
+   * 解析字段类型
+   *
    * @return The field type as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
    */
   public static Type resolveFieldType(Field field, Type srcType) {
+    // 字段类型
     Type fieldType = field.getGenericType();
+    // 字段所在类的类型
     Class<?> declaringClass = field.getDeclaringClass();
+    // 解析字段类型
     return resolveType(fieldType, srcType, declaringClass);
   }
 
   /**
+   * 解析返回值类型
+   *
    * @return The return type of the method as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
    */
   public static Type resolveReturnType(Method method, Type srcType) {
+    // 方法返回值类型
     Type returnType = method.getGenericReturnType();
+    // 方法所在类的类型
     Class<?> declaringClass = method.getDeclaringClass();
+    // 解析方法返回值类型
     return resolveType(returnType, srcType, declaringClass);
   }
 
   /**
+   * 解析参数类型
+   *
    * @return The parameter types of the method as an array of {@link Type}s. If they have type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
    */
   public static Type[] resolveParamTypes(Method method, Type srcType) {
+    // 方法的参数类型数组
     Type[] paramTypes = method.getGenericParameterTypes();
+    // 方法所在类的类型
     Class<?> declaringClass = method.getDeclaringClass();
+    // 解析方法参数类型
     Type[] result = new Type[paramTypes.length];
     for (int i = 0; i < paramTypes.length; i++) {
       result[i] = resolveType(paramTypes[i], srcType, declaringClass);
@@ -64,14 +73,29 @@ public class TypeParameterResolver {
     return result;
   }
 
+  /**
+   * 解析 type 的类型
+   *
+   * @param type           待解析的 type
+   * @param srcType        来源类型
+   * @param declaringClass 所在的定义类
+   * @return 解析后的类型
+   */
   private static Type resolveType(Type type, Type srcType, Class<?> declaringClass) {
+    // 泛型变量 eg:<T>
     if (type instanceof TypeVariable) {
       return resolveTypeVar((TypeVariable<?>) type, srcType, declaringClass);
-    } else if (type instanceof ParameterizedType) {
+    }
+    // 泛型类型 eg:List<String>
+    else if (type instanceof ParameterizedType) {
       return resolveParameterizedType((ParameterizedType) type, srcType, declaringClass);
-    } else if (type instanceof GenericArrayType) {
+    }
+    // 泛型数组 eg:T[]
+    else if (type instanceof GenericArrayType) {
       return resolveGenericArrayType((GenericArrayType) type, srcType, declaringClass);
-    } else {
+    }
+    // 普通类型
+    else {
       return type;
     }
   }
@@ -95,6 +119,7 @@ public class TypeParameterResolver {
 
   private static ParameterizedType resolveParameterizedType(ParameterizedType parameterizedType, Type srcType, Class<?> declaringClass) {
     Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+    // [1] 解析<>中的实际类型
     Type[] typeArgs = parameterizedType.getActualTypeArguments();
     Type[] args = new Type[typeArgs.length];
     for (int i = 0; i < typeArgs.length; i++) {
@@ -108,6 +133,7 @@ public class TypeParameterResolver {
         args[i] = typeArgs[i];
       }
     }
+    // [2] 创建 ParameterizedTypeImpl 对象
     return new ParameterizedTypeImpl(rawType, null, args);
   }
 
@@ -218,11 +244,30 @@ public class TypeParameterResolver {
     super();
   }
 
+  /**
+   * ParameterizedType 实现类
+   *
+   * 参数化类型，即泛型。例如：List<T>、Map<K, V>等带有参数化的配置
+   */
   static class ParameterizedTypeImpl implements ParameterizedType {
+    // 以 List<T> 举例子
+
+    /**
+     * <> 前面实际类型
+     *
+     * 例如：List
+     */
     private Class<?> rawType;
 
+    /**
+     * 如果这个类型是某个属性所有，则获取这个所有者类型；否则，返回 null
+     */
     private Type ownerType;
 
+    /**
+     * <> 中实际类型
+     * 例如：T
+     */
     private Type[] actualTypeArguments;
 
     public ParameterizedTypeImpl(Class<?> rawType, Type ownerType, Type[] actualTypeArguments) {

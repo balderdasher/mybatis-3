@@ -28,6 +28,9 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+/**
+ * 参数名解析器
+ */
 public class ParamNameResolver {
 
   private static final String GENERIC_NAME_PREFIX = "param";
@@ -44,18 +47,30 @@ public class ParamNameResolver {
    * <li>aMethod(int a, int b) -&gt; {{0, "0"}, {1, "1"}}</li>
    * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
    * </ul>
+   *
+   * 参数名映射
+   * key：参数顺序
+   * value：参数名
    */
   private final SortedMap<Integer, String> names;
 
+  /**
+   * 是否有 {@link Param} 注解
+   */
   private boolean hasParamAnnotation;
 
   public ParamNameResolver(Configuration config, Method method) {
+    // 方法参数类型数组
     final Class<?>[] paramTypes = method.getParameterTypes();
+    // 方法参数上的注解二维数组
     final Annotation[][] paramAnnotations = method.getParameterAnnotations();
     final SortedMap<Integer, String> map = new TreeMap<>();
+    // 带有注解的参数个数
     int paramCount = paramAnnotations.length;
     // get names from @Param annotations
+    // 从 @Param 注解中获取参数名
     for (int paramIndex = 0; paramIndex < paramCount; paramIndex++) {
+      // 跳过带有 RowBonds 和 ResultHandler注解的特殊参数
       if (isSpecialParameter(paramTypes[paramIndex])) {
         // skip special parameters
         continue;
@@ -68,19 +83,24 @@ public class ParamNameResolver {
           break;
         }
       }
+      // 参数没有 @Param 注解
       if (name == null) {
         // @Param was not specified.
-        if (config.isUseActualParamName()) {
+        if (config.isUseActualParamName()) {// 默认开启
+          // 使用 ParamNameUtil 获取实际的参数名
           name = getActualParamName(method, paramIndex);
         }
+        // 获取不到实际参数名时使用参数的索引作为参数名,这里先使用map的长度作为参数索引,再把参数放入map中,是一种巧妙的做法
         if (name == null) {
           // use the parameter index as the name ("0", "1", ...)
           // gcode issue #71
           name = String.valueOf(map.size());
         }
       }
+      // 放入参数名
       map.put(paramIndex, name);
     }
+    // 返回不可修改的 SortedMap 参数名集合
     names = Collections.unmodifiableSortedMap(map);
   }
 
@@ -106,6 +126,7 @@ public class ParamNameResolver {
    * In addition to the default names, this method also adds the generic names (param1, param2,
    * ...).
    * </p>
+   * 获得参数名与值的映射
    */
   public Object getNamedParams(Object[] args) {
     final int paramCount = names.size();
