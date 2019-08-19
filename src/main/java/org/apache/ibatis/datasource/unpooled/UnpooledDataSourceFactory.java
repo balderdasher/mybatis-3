@@ -15,23 +15,41 @@
  */
 package org.apache.ibatis.datasource.unpooled;
 
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
 import org.apache.ibatis.datasource.DataSourceException;
 import org.apache.ibatis.datasource.DataSourceFactory;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 
+import javax.sql.DataSource;
+import java.util.Properties;
+
 /**
+ * 非池化的 {@link DataSourceFactory} 实现
+ * UNPOOLED 类型的数据源仅仅需要配置以下 5 种属性：
+ * <p>
+ * driver – 这是 JDBC 驱动的 Java 类的完全限定名（并不是 JDBC 驱动中可能包含的数据源类）。
+ * url – 这是数据库的 JDBC URL 地址。
+ * username – 登录数据库的用户名。
+ * password – 登录数据库的密码。
+ * defaultTransactionIsolationLevel – 默认的连接事务隔离级别。
+ *
  * @author Clinton Begin
  */
 public class UnpooledDataSourceFactory implements DataSourceFactory {
 
+  /**
+   * 数据库驱动前缀
+   */
   private static final String DRIVER_PROPERTY_PREFIX = "driver.";
+
+  /**
+   * 数据库驱动前缀的长度
+   */
   private static final int DRIVER_PROPERTY_PREFIX_LENGTH = DRIVER_PROPERTY_PREFIX.length();
 
+  /**
+   * 数据源
+   */
   protected DataSource dataSource;
 
   public UnpooledDataSourceFactory() {
@@ -41,7 +59,9 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
   @Override
   public void setProperties(Properties properties) {
     Properties driverProperties = new Properties();
+    // 创建 dataSource 对应的 metaDataSource 对象
     MetaObject metaDataSource = SystemMetaObject.forObject(dataSource);
+    // 遍历 properties 属性，初始化到 driverProperties 和 MetaObject 中
     for (Object key : properties.keySet()) {
       String propertyName = (String) key;
       if (propertyName.startsWith(DRIVER_PROPERTY_PREFIX)) {
@@ -55,6 +75,7 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
         throw new DataSourceException("Unknown DataSource property: " + propertyName);
       }
     }
+    // 设置 driverProperties 到 MetaObject 中
     if (driverProperties.size() > 0) {
       metaDataSource.setValue("driverProperties", driverProperties);
     }
@@ -65,8 +86,17 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
     return dataSource;
   }
 
+  /**
+   * 将字符串转化成对应属性的类型
+   *
+   * @param metaDataSource dataSource对应的 metaObject 对象
+   * @param propertyName   属性名称
+   * @param value          字符串属性值
+   * @return
+   */
   private Object convertValue(MetaObject metaDataSource, String propertyName, String value) {
     Object convertedValue = value;
+    // 获得该属性的 setting 方法的参数类型
     Class<?> targetType = metaDataSource.getSetterType(propertyName);
     if (targetType == Integer.class || targetType == int.class) {
       convertedValue = Integer.valueOf(value);

@@ -33,25 +33,61 @@ import javax.sql.DataSource;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 非池化数据源实现
  * @author Clinton Begin
  * @author Eduardo Macarron
  */
 public class UnpooledDataSource implements DataSource {
 
+  /**
+   * Driver 类的类加载器
+   */
   private ClassLoader driverClassLoader;
+
+  /**
+   * Driver 属性
+   */
   private Properties driverProperties;
+
+  /**
+   * 已注册的数据库驱动映射
+   * KEY: Driver 类名
+   * VALUE: Driver 对象
+   */
   private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<>();
 
+  /**
+   * Driver 类名
+   */
   private String driver;
+  /**
+   * 数据库 URL
+   */
   private String url;
+  /**
+   * 数据库用户名
+   */
   private String username;
+  /**
+   * 数据库密码
+   */
   private String password;
 
+  /**
+   * 是否自动提交
+   */
   private Boolean autoCommit;
+  /**
+   * 默认事务隔离级别
+   */
   private Integer defaultTransactionIsolationLevel;
+  /**
+   * 默认超时时间
+   */
   private Integer defaultNetworkTimeout;
 
   static {
+    // 初始化 registeredDrivers
     Enumeration<Driver> drivers = DriverManager.getDrivers();
     while (drivers.hasMoreElements()) {
       Driver driver = drivers.nextElement();
