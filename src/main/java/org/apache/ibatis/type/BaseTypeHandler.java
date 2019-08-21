@@ -24,6 +24,7 @@ import org.apache.ibatis.executor.result.ResultMapException;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * {@link TypeHandler} 基础抽象类
  * The base {@link TypeHandler} for references a generic type.
  * <p>
  * Important: Since 3.5.0, This class never call the {@link ResultSet#wasNull()} and
@@ -53,6 +54,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
 
   @Override
   public void setParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
+    // 参数为空时,设置为null类型
     if (parameter == null) {
       if (jdbcType == null) {
         throw new TypeException("JDBC requires that the JdbcType must be specified for all nullable parameters.");
@@ -64,8 +66,11 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
               + "Try setting a different JdbcType for this parameter or a different jdbcTypeForNull configuration property. "
               + "Cause: " + e, e);
       }
-    } else {
+    }
+    // 参数非空时,设置对应的参数值
+    else {
       try {
+        // 抽象方法,子类实现
         setNonNullParameter(ps, i, parameter, jdbcType);
       } catch (Exception e) {
         throw new TypeException("Error setting non null for parameter #" + i + " with JdbcType " + jdbcType + " . "
@@ -78,6 +83,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
   @Override
   public T getResult(ResultSet rs, String columnName) throws SQLException {
     try {
+      // 抽象方法,子类实现
       return getNullableResult(rs, columnName);
     } catch (Exception e) {
       throw new ResultMapException("Error attempting to get column '" + columnName + "' from result set.  Cause: " + e, e);
@@ -87,6 +93,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
   @Override
   public T getResult(ResultSet rs, int columnIndex) throws SQLException {
     try {
+      // 抽象方法,子类实现
       return getNullableResult(rs, columnIndex);
     } catch (Exception e) {
       throw new ResultMapException("Error attempting to get column #" + columnIndex + " from result set.  Cause: " + e, e);
@@ -96,6 +103,7 @@ public abstract class BaseTypeHandler<T> extends TypeReference<T> implements Typ
   @Override
   public T getResult(CallableStatement cs, int columnIndex) throws SQLException {
     try {
+      // 抽象方法,子类实现
       return getNullableResult(cs, columnIndex);
     } catch (Exception e) {
       throw new ResultMapException("Error attempting to get column #" + columnIndex + " from callable statement.  Cause: " + e, e);

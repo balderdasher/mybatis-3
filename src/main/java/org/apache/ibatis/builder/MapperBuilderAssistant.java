@@ -415,7 +415,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
         String property = parser.nextToken();
         String column = parser.nextToken();
         ResultMapping complexResultMapping = new ResultMapping.Builder(
-            configuration, property, column, configuration.getTypeHandlerRegistry().getUnknownTypeHandler()).build();
+            configuration, property, column, configuration.getTypeHandlerRegistry().getUNKNOWN_TYPE_HANDLER()).build();
         composites.add(complexResultMapping);
       }
     }

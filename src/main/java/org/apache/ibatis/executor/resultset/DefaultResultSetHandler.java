@@ -777,7 +777,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     if (typeHandlerRegistry.hasTypeHandler(parameterType)) {
       typeHandler = typeHandlerRegistry.getTypeHandler(parameterType);
     } else {
-      typeHandler = typeHandlerRegistry.getUnknownTypeHandler();
+      typeHandler = typeHandlerRegistry.getUNKNOWN_TYPE_HANDLER();
     }
     return typeHandler.getResult(rs, prependPrefix(resultMapping.getColumn(), columnPrefix));
   }

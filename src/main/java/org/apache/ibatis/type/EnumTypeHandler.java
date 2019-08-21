@@ -21,10 +21,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * 枚举类型处理器
+ * 因为数据库不存在枚举类型，所以讲枚举类型持久化到数据库有两种方式，Enum.name <=> String 和 Enum.ordinal <=> int 。EnumTypeHandler 是前者，EnumOrdinalTypeHandler 是后者
+ *
  * @author Clinton Begin
  */
 public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
+  /**
+   * 枚举类
+   */
   private final Class<E> type;
 
   public EnumTypeHandler(Class<E> type) {
@@ -36,6 +42,7 @@ public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType) throws SQLException {
+    // 设置参数值为枚举类的 name 字符串值
     if (jdbcType == null) {
       ps.setString(i, parameter.name());
     } else {
@@ -45,19 +52,25 @@ public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 
   @Override
   public E getNullableResult(ResultSet rs, String columnName) throws SQLException {
+    // 获得该列的 String 值
     String s = rs.getString(columnName);
+    // 将 String 转化为枚举
     return s == null ? null : Enum.valueOf(type, s);
   }
 
   @Override
   public E getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+    // 获得该列的 String 值
     String s = rs.getString(columnIndex);
+    // 将 String 转化为枚举
     return s == null ? null : Enum.valueOf(type, s);
   }
 
   @Override
   public E getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    // 获得该列的 String 值
     String s = cs.getString(columnIndex);
+    // 将 String 转化为枚举
     return s == null ? null : Enum.valueOf(type, s);
   }
 }

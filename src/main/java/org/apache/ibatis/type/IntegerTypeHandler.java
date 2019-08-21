@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * {@link Integer} 类型处理器
  * @author Clinton Begin
  */
 public class IntegerTypeHandler extends BaseTypeHandler<Integer> {
@@ -28,27 +29,34 @@ public class IntegerTypeHandler extends BaseTypeHandler<Integer> {
   @Override
   public void setNonNullParameter(PreparedStatement ps, int i, Integer parameter, JdbcType jdbcType)
       throws SQLException {
+    // 直接使用 ps 设置参数值
     ps.setInt(i, parameter);
   }
 
   @Override
   public Integer getNullableResult(ResultSet rs, String columnName)
       throws SQLException {
+    // 从结果集中获取指定列的值
     int result = rs.getInt(columnName);
+    // rs非空返回 result, 否则返回 null
     return result == 0 && rs.wasNull() ? null : result;
   }
 
   @Override
   public Integer getNullableResult(ResultSet rs, int columnIndex)
       throws SQLException {
+    // 从结果集中获取指定位置列的值
     int result = rs.getInt(columnIndex);
+    // rs非空返回 result, 否则返回 null
     return result == 0 && rs.wasNull() ? null : result;
   }
 
   @Override
   public Integer getNullableResult(CallableStatement cs, int columnIndex)
       throws SQLException {
+    // 获取指定位置列的值
     int result = cs.getInt(columnIndex);
+    // cs非空返回 result, 否则返回 null
     return result == 0 && cs.wasNull() ? null : result;
   }
 }

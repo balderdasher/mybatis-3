@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
+ * {@link Object} 类型处理器
  * @author Clinton Begin
  */
 public class ObjectTypeHandler extends BaseTypeHandler<Object> {
