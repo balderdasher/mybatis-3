@@ -25,6 +25,7 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * 事务的二级缓存
  * The 2nd level cache transactional buffer.
  * <p>
  * This class holds all cache entries that are to be added to the 2nd level cache during a Session.
@@ -39,9 +40,21 @@ public class TransactionalCache implements Cache {
 
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
 
+  /**
+   * 被装饰的 {@link Cache} 对象
+   */
   private final Cache delegate;
+  /**
+   * 是否在提交时清空缓存
+   */
   private boolean clearOnCommit;
+  /**
+   * 提交时添加的缓存
+   */
   private final Map<Object, Object> entriesToAddOnCommit;
+  /**
+   * 缓存未命中的对象
+   */
   private final Set<Object> entriesMissedInCache;
 
   public TransactionalCache(Cache delegate) {
@@ -66,9 +79,11 @@ public class TransactionalCache implements Cache {
     // issue #116
     Object object = delegate.getObject(key);
     if (object == null) {
+      // 记录缓存未命中的key
       entriesMissedInCache.add(key);
     }
     // issue #146
+    // 如果提交时清空缓存返回空,否则返回获取到的缓存值
     if (clearOnCommit) {
       return null;
     } else {
@@ -88,15 +103,18 @@ public class TransactionalCache implements Cache {
 
   @Override
   public void clear() {
-    clearOnCommit = true;
-    entriesToAddOnCommit.clear();
+    clearOnCommit = true;//提交时清空设置为true
+    entriesToAddOnCommit.clear();//清空提交时要添加的缓存
   }
 
   public void commit() {
+    // 如果事务提交时清空缓存,则清空缓存
     if (clearOnCommit) {
       delegate.clear();
     }
+    // 把事务提交时要添加到缓存的值刷新到缓存中
     flushPendingEntries();
+    // 重置
     reset();
   }
 
@@ -112,9 +130,11 @@ public class TransactionalCache implements Cache {
   }
 
   private void flushPendingEntries() {
+    // 将事务提交时要添加到缓存的值加入缓存
     for (Map.Entry<Object, Object> entry : entriesToAddOnCommit.entrySet()) {
       delegate.putObject(entry.getKey(), entry.getValue());
     }
+    // 如果缓存未命中并且待加入缓存中不包含这个未命中的,则将此值放入缓存,值设置为null
     for (Object entry : entriesMissedInCache) {
       if (!entriesToAddOnCommit.containsKey(entry)) {
         delegate.putObject(entry, null);
@@ -123,6 +143,7 @@ public class TransactionalCache implements Cache {
   }
 
   private void unlockMissedEntries() {
+    // 从缓存中移除未命中的缓存
     for (Object entry : entriesMissedInCache) {
       try {
         delegate.removeObject(entry);

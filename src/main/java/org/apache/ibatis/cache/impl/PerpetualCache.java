@@ -22,12 +22,19 @@ import org.apache.ibatis.cache.Cache;
 import org.apache.ibatis.cache.CacheException;
 
 /**
+ * 基于 {@link HashMap} 实现的永不过期的 {@link Cache} 缓存实现类
  * @author Clinton Begin
  */
 public class PerpetualCache implements Cache {
 
+  /**
+   * 缓存标识 id
+   */
   private final String id;
 
+  /**
+   * 缓存容器
+   */
   private Map<Object, Object> cache = new HashMap<>();
 
   public PerpetualCache(String id) {

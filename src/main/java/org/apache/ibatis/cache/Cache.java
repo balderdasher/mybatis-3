@@ -18,6 +18,7 @@ package org.apache.ibatis.cache;
 import java.util.concurrent.locks.ReadWriteLock;
 
 /**
+ * 缓存容器接口 SPI，实现类必须有一个参数为String类型的用于构造缓存id的构造器
  * SPI for cache providers.
  * <p>
  * One instance of cache will be created for each namespace.
@@ -42,23 +43,27 @@ import java.util.concurrent.locks.ReadWriteLock;
 public interface Cache {
 
   /**
+   * 获取缓存 id
    * @return The identifier of this cache
    */
   String getId();
 
   /**
+   * 放入缓存
    * @param key Can be any object but usually it is a {@link CacheKey}
    * @param value The result of a select.
    */
   void putObject(Object key, Object value);
 
   /**
-   * @param key The key
+   * 获取缓存
+   * @param key The key 缓存key
    * @return The object stored in the cache.
    */
   Object getObject(Object key);
 
   /**
+   * 清理缓存
    * As of 3.3.0 this method is only called during a rollback
    * for any previous value that was missing in the cache.
    * This lets any blocking cache to release the lock that
@@ -69,17 +74,19 @@ public interface Cache {
    * available instead of hitting the database.
    *
    *
-   * @param key The key
+   * @param key The key 缓存 key
    * @return Not used
    */
   Object removeObject(Object key);
 
   /**
+   * 清理缓存实例
    * Clears this cache instance.
    */
   void clear();
 
   /**
+   * 获取缓存中存储的元素数量，并非缓存的容量
    * Optional. This method is not called by the core.
    *
    * @return The number of elements stored in the cache (not its capacity).
@@ -87,6 +94,7 @@ public interface Cache {
   int getSize();
 
   /**
+   * 获得读写锁,此方法可忽略
    * Optional. As of 3.2.6 this method is no longer called by the core.
    * <p>
    * Any locking needed by the cache must be provided internally by the cache provider.

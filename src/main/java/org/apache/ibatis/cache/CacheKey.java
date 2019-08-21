@@ -23,22 +23,47 @@ import java.util.StringJoiner;
 import org.apache.ibatis.reflection.ArrayUtil;
 
 /**
+ * 缓存键
  * @author Clinton Begin
  */
 public class CacheKey implements Cloneable, Serializable {
 
   private static final long serialVersionUID = 1146682552656046210L;
 
+  /**
+   * 单例,空缓存键
+   */
   public static final CacheKey NULL_CACHE_KEY = new NullCacheKey();
 
+  /**
+   * 默认 hashcode 系数
+   */
   private static final int DEFAULT_MULTIPLYER = 37;
+  /**
+   * 默认 hashcode
+   */
   private static final int DEFAULT_HASHCODE = 17;
 
+  /**
+   * hashcode 系数
+   */
   private final int multiplier;
+  /**
+   * 缓存键的 hashcode
+   */
   private int hashcode;
+  /**
+   * 校验和
+   */
   private long checksum;
+  /**
+   * {@link #update(Object)} 的数量
+   */
   private int count;
   // 8/21/2017 - Sonarlint flags this as needing to be marked transient.  While true if content is not serializable, this is not always true and thus should not be marked transient.
+  /**
+   * 计算 {@link #hashcode} 的对象的集合
+   */
   private List<Object> updateList;
 
   public CacheKey() {
@@ -58,14 +83,19 @@ public class CacheKey implements Cloneable, Serializable {
   }
 
   public void update(Object object) {
+    // 计算 object 的hashcode
     int baseHashCode = object == null ? 1 : ArrayUtil.hashCode(object);
 
+    // 更新数 ++
     count++;
+    // 校验和 += object 的 hashcode
     checksum += baseHashCode;
-    baseHashCode *= count;
 
+    // 计算新的 hashcode 值
+    baseHashCode *= count;
     hashcode = multiplier * hashcode + baseHashCode;
 
+    // 添加 object 到 updateList 中
     updateList.add(object);
   }
 
@@ -96,6 +126,7 @@ public class CacheKey implements Cloneable, Serializable {
       return false;
     }
 
+    // 比较 updateList
     for (int i = 0; i < updateList.size(); i++) {
       Object thisObject = updateList.get(i);
       Object thatObject = cacheKey.updateList.get(i);
@@ -123,6 +154,7 @@ public class CacheKey implements Cloneable, Serializable {
   @Override
   public CacheKey clone() throws CloneNotSupportedException {
     CacheKey clonedCacheKey = (CacheKey) super.clone();
+    // 创建 updateList ,避免原 updateList 被修改
     clonedCacheKey.updateList = new ArrayList<>(updateList);
     return clonedCacheKey;
   }

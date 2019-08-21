@@ -29,10 +29,14 @@ import org.apache.ibatis.cache.CacheException;
 import org.apache.ibatis.io.Resources;
 
 /**
+ * 支持序列化的缓存实现
  * @author Clinton Begin
  */
 public class SerializedCache implements Cache {
 
+  /**
+   * 被装饰的 {@link Cache} 对象
+   */
   private final Cache delegate;
 
   public SerializedCache(Cache delegate) {
@@ -51,6 +55,7 @@ public class SerializedCache implements Cache {
 
   @Override
   public void putObject(Object key, Object object) {
+    // 如果缓存对象实现了序列化接口,则将序列化后的对象放入缓存
     if (object == null || object instanceof Serializable) {
       delegate.putObject(key, serialize((Serializable) object));
     } else {
@@ -61,6 +66,7 @@ public class SerializedCache implements Cache {
   @Override
   public Object getObject(Object key) {
     Object object = delegate.getObject(key);
+    // 反序列化缓存值取出缓存对象
     return object == null ? null : deserialize((byte[]) object);
   }
 
