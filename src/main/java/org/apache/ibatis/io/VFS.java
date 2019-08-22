@@ -28,6 +28,7 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * 虚拟文件系统抽象类，用来查找指定目录下的文件
  * Provides a very simple API for accessing resources within an application server.
  *
  * @author Ben Gunter

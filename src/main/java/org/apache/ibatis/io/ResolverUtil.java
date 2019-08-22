@@ -25,6 +25,7 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ * 解析器工具类，用于获得指定目录符合条件的类们
  * <p>ResolverUtil is used to locate classes that are available in the/a class path and meet
  * arbitrary conditions. The two most common conditions are that a class implements/extends
  * another class, or that is it annotated with a specific annotation. However, through the use
@@ -63,6 +64,7 @@ public class ResolverUtil<T> {
   private static final Log log = LogFactory.getLog(ResolverUtil.class);
 
   /**
+   * 匹配判断接口
    * A simple interface that specifies how to test classes to determine if they
    * are to be included in the results produced by the ResolverUtil.
    */
@@ -75,6 +77,7 @@ public class ResolverUtil<T> {
   }
 
   /**
+   * 判断是否为指定的类
    * A Test that checks to see if each class is assignable to the provided class. Note
    * that this test will match the parent type itself if it is presented for matching.
    */
@@ -99,6 +102,7 @@ public class ResolverUtil<T> {
   }
 
   /**
+   * 判断是否有指定的注解
    * A Test that checks to see if each class is annotated with a specific annotation. If it
    * is, then the test returns true, otherwise false.
    */
@@ -123,9 +127,10 @@ public class ResolverUtil<T> {
   }
 
   /** The set of matches being accumulated. */
-  private Set<Class<? extends T>> matches = new HashSet<>();
+  private Set<Class<? extends T>> matches = new HashSet<>();// 符合条件的类的集合
 
   /**
+   * 定位类的时候使用的 类加载器
    * The ClassLoader to use when looking for classes. If null then the ClassLoader returned
    * by Thread.currentThread().getContextClassLoader() will be used.
    */
@@ -214,12 +219,16 @@ public class ResolverUtil<T> {
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
   public ResolverUtil<T> find(Test test, String packageName) {
+    // 获得包路径
     String path = getPackagePath(packageName);
 
     try {
+      // 获得包路径下的所有文件路径
       List<String> children = VFS.getInstance().list(path);
+      // 遍历包下所有文件路径
       for (String child : children) {
         if (child.endsWith(".class")) {
+          // 匹配则添加到结果集
           addIfMatching(test, child);
         }
       }
