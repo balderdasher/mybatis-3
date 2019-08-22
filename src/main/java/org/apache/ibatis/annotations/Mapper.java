@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * mybatis 的mapper标记注解
  * Marker interface for MyBatis mappers
  *
  * @author Frank David Martínez

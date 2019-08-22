@@ -27,13 +27,22 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
 /**
+ * {@link org.apache.ibatis.annotations.Mapper} 注册表
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
  */
 public class MapperRegistry {
 
+  /**
+   * mybatis 配置对象
+   */
   private final Configuration config;
+  /**
+   * {@link MapperProxyFactory} 的映射
+   *
+   * KEY：Mapper 接口
+   */
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
@@ -42,10 +51,13 @@ public class MapperRegistry {
 
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    // 获得 MapperProxyFactory 对象
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+    // 获取不到抛异常
     if (mapperProxyFactory == null) {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
+    // 创建 Mapper 的代理对象并返回
     try {
       return mapperProxyFactory.newInstance(sqlSession);
     } catch (Exception e) {
@@ -57,21 +69,32 @@ public class MapperRegistry {
     return knownMappers.containsKey(type);
   }
 
+  /**
+   * 将制定的 mapper 类添加到已经的 mapper 列表中
+   * @param type mapper 类
+   * @param <T>
+   */
   public <T> void addMapper(Class<T> type) {
+    // 必须是接口
     if (type.isInterface()) {
+      // 如果已经添加过则抛异常
       if (hasMapper(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
       }
       boolean loadCompleted = false;
+      // 添加到已知列表中
       try {
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the
         // mapper parser. If the type is already known, it won't try.
+        // 解析 Mapper 注解配置
         MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
         parser.parse();
+        // 标记加载完成
         loadCompleted = true;
       } finally {
+        // 若加载未完成,则从列表中移除
         if (!loadCompleted) {
           knownMappers.remove(type);
         }
@@ -87,6 +110,7 @@ public class MapperRegistry {
   }
 
   /**
+   * 扫描指定包，并将符合的类添加到已经的mapper列表中
    * @since 3.2.2
    */
   public void addMappers(String packageName, Class<?> superType) {
