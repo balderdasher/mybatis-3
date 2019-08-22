@@ -22,6 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 查询语句提供器注解
  * @author Clinton Begin
  */
 @Documented
@@ -30,6 +31,7 @@ import java.lang.annotation.Target;
 public @interface SelectProvider {
 
   /**
+   * 提供类
    * Specify a type that implements an SQL provider method.
    *
    * @return a type that implements an SQL provider method
@@ -50,6 +52,7 @@ public @interface SelectProvider {
   Class<?> type() default void.class;
 
   /**
+   * 类中提供查询语句的方法名
    * Specify a method for providing an SQL.
    *
    * <p>

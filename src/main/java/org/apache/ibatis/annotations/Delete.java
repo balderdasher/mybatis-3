@@ -22,11 +22,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 删除语句注解
  * @author Clinton Begin
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Delete {
+  /**
+   * @return 删除语句
+   */
   String[] value();
 }

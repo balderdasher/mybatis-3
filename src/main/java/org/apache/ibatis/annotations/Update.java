@@ -22,11 +22,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * 更新语句注解
  * @author Clinton Begin
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Update {
+  /**
+   * @return 更新语句
+   */
   String[] value();
 }
