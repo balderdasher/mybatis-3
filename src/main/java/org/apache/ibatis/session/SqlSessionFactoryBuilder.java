@@ -44,9 +44,18 @@ public class SqlSessionFactoryBuilder {
     return build(reader, null, properties);
   }
 
+  /**
+   * 构建 SqlSessionFactory 对象
+   * @param reader Reader 对象,用于读取配置文件
+   * @param environment 环境对象
+   * @param properties 属性对象
+   * @return
+   */
   public SqlSessionFactory build(Reader reader, String environment, Properties properties) {
     try {
+      // 构建 XMLConfigBuilder 对象
       XMLConfigBuilder parser = new XMLConfigBuilder(reader, environment, properties);
+      // 执行 xml 解析并构建 SqlSessionFactory 对象
       return build(parser.parse());
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);

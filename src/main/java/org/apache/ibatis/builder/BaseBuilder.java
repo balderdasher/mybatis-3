@@ -29,9 +29,13 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ * 基础解析器
  * @author Clinton Begin
  */
 public abstract class BaseBuilder {
+  /**
+   * configuration 属性，MyBatis Configuration 对象。XML 和注解中解析到的配置，最终都会设置到 org.apache.ibatis.session.Configuration 中
+   */
   protected final Configuration configuration;
   protected final TypeAliasRegistry typeAliasRegistry;
   protected final TypeHandlerRegistry typeHandlerRegistry;
@@ -46,6 +50,13 @@ public abstract class BaseBuilder {
     return configuration;
   }
 
+  /**
+   * 创建正则表达式
+   *
+   * @param regex 指定表达式
+   * @param defaultValue 默认表达式
+   * @return 正则表达式
+   */
   protected Pattern parseExpression(String regex, String defaultValue) {
     return Pattern.compile(regex == null ? defaultValue : regex);
   }

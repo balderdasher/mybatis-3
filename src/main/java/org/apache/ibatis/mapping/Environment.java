@@ -20,11 +20,21 @@ import javax.sql.DataSource;
 import org.apache.ibatis.transaction.TransactionFactory;
 
 /**
+ * DB 环境
  * @author Clinton Begin
  */
 public final class Environment {
+  /**
+   * 环境标识id
+   */
   private final String id;
+  /**
+   * 事务工厂对象
+   */
   private final TransactionFactory transactionFactory;
+  /**
+   * 数据源对象
+   */
   private final DataSource dataSource;
 
   public Environment(String id, TransactionFactory transactionFactory, DataSource dataSource) {
