@@ -18,10 +18,14 @@ package org.apache.ibatis.builder;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * Mapper 配置文件中的缓存实现节点 <cacheRef /> 解析器
  * @author Clinton Begin
  */
 public class CacheRefResolver {
   private final MapperBuilderAssistant assistant;
+  /**
+   * Cache 指向的命名空间
+   */
   private final String cacheRefNamespace;
 
   public CacheRefResolver(MapperBuilderAssistant assistant, String cacheRefNamespace) {

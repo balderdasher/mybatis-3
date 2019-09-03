@@ -50,13 +50,28 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
+ * Mapper 构造器助手，方便 {@link org.apache.ibatis.builder.xml.XMLMapperBuilder}
+ * 和 {@link org.apache.ibatis.builder.annotation.MapperAnnotationBuilder} 都能调用其中的
+ * 公用方法
  * @author Clinton Begin
  */
 public class MapperBuilderAssistant extends BaseBuilder {
 
+  /**
+   * 当前命名空间
+   */
   private String currentNamespace;
+  /**
+   * 资源引用地址
+   */
   private final String resource;
+  /**
+   * 当前 Cache 对象
+   */
   private Cache currentCache;
+  /**
+   * 是否是未解析成功的 cache 引用
+   */
   private boolean unresolvedCacheRef; // issue #676
 
   public MapperBuilderAssistant(Configuration configuration, String resource) {
